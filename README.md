@@ -1,7 +1,11 @@
 # Final-Project-Transforming-and-Analyzing-Data-with-SQL
 
 ## Project/Goals
-(fill in your description and goals here)
+1. import csv data files into an RDMS
+2. create schema to build relationships between tables
+3. clean data to eliminate redundancy and or inaccuracies
+4. query tables in response to presented business questions
+4. generate an entity relationship diagram
 
 ## Process:
 1. [Schema and Master Data Review](https://github.com/j-lepard/LHL-SQL_Project/blob/8787467a2a8bf9ac972472815ad9b794971721ae/02.cleaning_data.md)
@@ -30,7 +34,6 @@
     * build country, city table
 * move all the supporting .png files into their own sub directory. 
 * actually do some meaningful queries! 
-* A 'real' ERD... not this temporary mind jumble. 
-![img_40.png](images/img_40.png)
+* A 'real' ERD... not this temporary mind jumble.
 
 ![ERD.png](images/ERD.png)

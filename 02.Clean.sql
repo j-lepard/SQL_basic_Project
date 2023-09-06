@@ -64,7 +64,7 @@ select name,
 
 -- VIEW for PRODUCTS_CLN
 -- -- Add additional components to this View as required
-drop view if exists products_cln cascade;
+drop view if exists products_cln;
 create or replace view products_cln as
 select
         p.sku,
@@ -74,13 +74,14 @@ select
        restockingleadtime,
        sentimentscore,
        sentimentmagnitude,
-       c.Cat_level1 as CategoryL1,
-       c.Cat_level2 as CategoryL2,
-       c.Cat_level3 as CategoryL3
+
+--        c.Cat_level1 as CategoryL1,
+--        c.Cat_level2 as CategoryL2,
+--        c.Cat_level3 as CategoryL3
     from
         products P
-join productcategories_cln C
-on p.sku=c.sku;
+-- join productcategories_cln C
+-- on p.sku=c.sku;
 select * from products_cln
 --------
 
@@ -97,25 +98,31 @@ from products_cln
 -- VIEW PRODUCT CATEGORIES - split into ARRAY and then create new columns
 drop view if exists productcategories_cln;
 create view productcategories_cln as
-SELECT  sku,
-        name_cln,
+SELECT  productsku,
+        v2productcategory,
         CASE
-                WHEN ProductCategory='${escCatTitle}' then NULL
-                WHEN ProductCategory='(not set)' then null
-                else ProductCategory
+                WHEN v2productcategory='${escCatTitle}' then NULL
+                WHEN v2productcategory='(not set)' then null
+                else v2productcategory
                 END AS productCategory_fix,
-       length(ProductCategory) - length(replace(productcategory,'/','')) as CatDepth,
+       length(v2productcategory) - length(replace(v2productcategory,'/','')) as CatDepth,
        categoriesarray[1] as Cat_level1,
        categoriesarray[2] as Cat_level2,
        categoriesarray[3] as Cat_level3,
        categoriesarray[4] as Cat_level4
 from (
-    select  sku,
-            name_cln,
-            productcategory,
-            string_to_array(productcategory,'/') as categoriesarray
-    from products_cln
+    select  productsku,
+            v2productcategory,
+            string_to_array(v2productcategory,'/') as categoriesarray
+    from all_sessions
      ) as CategoryArray;
+select  distinct productsku,
+       v2productcategory,
+       CatDepth,
+       Cat_level1,
+       Cat_level2,
+       Cat_level3
+from productcategories_cln;
 
 -- VIEW for ANALYTICS_CLN
 -- Select Distinct VisitID to remove duplicates
