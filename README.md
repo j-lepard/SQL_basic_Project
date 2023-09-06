@@ -4,7 +4,7 @@
 (fill in your description and goals here)
 
 ## Process
-### [Schema and Master Data Review] (https://github.com/j-lepard/LHL-SQL_Project/blob/8787467a2a8bf9ac972472815ad9b794971721ae/02.cleaning_data.md)
+1.[Schema and Master Data Review](https://github.com/j-lepard/LHL-SQL_Project/blob/8787467a2a8bf9ac972472815ad9b794971721ae/02.cleaning_data.md)
 ### (your step 2)
 
 ## Results
