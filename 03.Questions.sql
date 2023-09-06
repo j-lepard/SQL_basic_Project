@@ -31,7 +31,14 @@ order by Total_txn_revenue desc;
 -------------------------
 --Question 2: What is the average number of products ordered from visitors in each city and country?**
 -- COUNTRY
-
+select
+       s.country,
+       to_char(avg(a.units_sold_num),'9999d9') as AVG
+from analytics_cln A
+join all_session_cln S
+on A.visitid=S.visitid
+group by s.country
+order by AVG DEsc
 
 
 -- BY CITY
@@ -43,3 +50,10 @@ join all_session_cln S
 on A.visitid=S.visitid
 group by s.city_fix
 order by AVG DEsc
+
+-- Question 3: Pattern to product Category with respect to city/country?
+
+select *
+from productcategories_cln as Cat
+join products_cln as Prod
+on prod.sku=cat.sku

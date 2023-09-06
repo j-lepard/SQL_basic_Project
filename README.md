@@ -21,7 +21,7 @@
 1. Reverse engineering a database with no context on business application. 
 2. Determining the wheat from the chaff (what is junk vs. important)
 3. Evaluating orphaned records and the 'source of truth'
-4. 
+4. Keeping track of 'what am I working on'
 
 ## Future Goals
 * re-engineer the data into proper master data. 
@@ -29,3 +29,4 @@
     * build the e-commerce table
     * build country, city table
 * move all the supporting .png files into their own sub directory. 
+* actually do some meaningful queries! 

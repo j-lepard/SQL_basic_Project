@@ -60,24 +60,28 @@ select name,
        length(name) as no_trim,
        length(trim(both from name)) as trim
     from
-        products
+        products;
 
 -- VIEW for PRODUCTS_CLN
 -- -- Add additional components to this View as required
+drop view if exists products_cln cascade;
 create or replace view products_cln as
 select
-        sku,
+        p.sku,
         trim(both from name) as name_cln,
        orderedquantity,
        stocklevel,
        restockingleadtime,
        sentimentscore,
        sentimentmagnitude,
-       a.v2productcategory as ProductCategory
+       c.Cat_level1 as CategoryL1,
+       c.Cat_level2 as CategoryL2,
+       c.Cat_level3 as CategoryL3
     from
         products P
-join all_sessions A
-on p.sku=a.productsku;
+join productcategories_cln C
+on p.sku=c.sku;
+select * from products_cln
 --------
 
 select sku,
@@ -91,7 +95,7 @@ select sku,
 from products_cln
 
 -- VIEW PRODUCT CATEGORIES - split into ARRAY and then create new columns
-drop view if exists productcategories_cln
+drop view if exists productcategories_cln;
 create view productcategories_cln as
 SELECT  sku,
         name_cln,
@@ -110,7 +114,6 @@ from (
             name_cln,
             productcategory,
             string_to_array(productcategory,'/') as categoriesarray
-
     from products_cln
      ) as CategoryArray;
 
@@ -177,6 +180,7 @@ select distinct (concat(visitid,'-',date,'-',time)) as primarykey,
             else city
         end as city_fix,
        transactions,
+       v2productcategory,
        timeonsite,
        pageviews,
        sessionqualitydim,
