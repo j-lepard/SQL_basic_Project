@@ -30,3 +30,5 @@
     * build country, city table
 * move all the supporting .png files into their own sub directory. 
 * actually do some meaningful queries! 
+* A 'real' ERD... not this temporary mind jumble. 
+![img_40.png](img_40.png)
