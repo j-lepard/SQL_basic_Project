@@ -133,14 +133,16 @@ FROM analytics as A
 group by a.visitid;
 select * from analytics_summary2;
 
---VIEW FOR ANALYTICS
-    --change data type fo units sold.
+--VIEW FOR ANALYTICS_CLN
+    --change data type fo units sold
+    -- REMOVE any record where the units sold is Null AND the Revenue is NULL.
 
 drop view if exists analytics_cln;
 create view  analytics_cln as
 SELECT *,
    to_number(units_sold,'9999') as units_sold_num
 FROM analytics as A
+where units_sold is not null and revenue is not null
 select * from analytics_cln;
 
 -- VIEW for SALES_REPORT_CLN

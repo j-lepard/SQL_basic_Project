@@ -28,4 +28,4 @@
   * example: 
     * build the e-commerce table
     * build country, city table
-
+* move all the supporting .png files into their own sub directory. 
