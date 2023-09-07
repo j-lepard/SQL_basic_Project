@@ -1,103 +1,41 @@
-select *
-from sales_report
-where "productSKU" = 'GGOEGAAX0081'
+--TRIM WHITESPACE FROM PRODUCTS
+CREATE VIEW products_cln as
+SELECT p.sku,
+       TRIM(BOTH FROM p.name) AS name_cln,
+       p.orderedquantity,
+       p.stocklevel,
+       p.restockingleadtime,
+       p.sentimentscore,
+       p.sentimentmagnitude
+FROM products p;
 
-select *
-from sales_by_sku
-where "productSKU" = 'GGOEGAAX0081'
 
-select *
-from products P
-join sales_by_sku S on P.sku=S."productSKU"
-where p.sku='GGOEGAAX0081'
-
-SELECT table_name, column_name
-FROM information_schema.columns
-WHERE table_name = 'your_table_name'
-AND column_name <> LOWER(column_name);
-
----CHANGE THE COLUMN/Field Names
-ALTER TABLE your_table_name
-RENAME COLUMN "productSKU" TO productsku;
-
----Check count of primary key items
---PRODUCTS TABLE
-select sku,count(sku)
-from products
-group by name,sku
-
---ALL_SESSIONS TABLE
-select visitid,count(visitid) as visitidcount
-from all_sessions
-group by visitid
-having count(visitid) >1
-order by visitidcount desc
-
---Analytics
-select visitid,count(visitid) as visitidcount
-from analytics
-group by visitid
-having count(visitid) >1
-order by visitidcount desc
-
---SALES by SKU
-select product_sku,count(product_sku) as countSKU
-from sales_by_sku
-group by product_sku
-having count(product_sku) >1
-order by countSKU desc;
-
---SALES REPORT
-select productsku,count(productsku) as countSKU
-from sales_report
-group by productsku
-having count(productsku) >1
-order by countSKU desc
-
---TRIM WHITESPACE from PRODUCTS
-select name,
-       trim(both from name),
-       length(name) as no_trim,
-       length(trim(both from name)) as trim
-    from
-        products;
-
--- VIEW for PRODUCTS_CLN
--- -- Add additional components to this View as required
-drop view if exists products_cln;
-create or replace view products_cln as
-select
+-- VIEW for PRODUCTS_CATEGORIES
+-- -- 1. trim name
+-----2. split path into categories.
+drop view if exists products_categories;
+CREATE view products_categories as
+SELECT
         p.sku,
-        trim(both from name) as name_cln,
+        trim(both FROM name) as name_cln,
        orderedquantity,
        stocklevel,
        restockingleadtime,
        sentimentscore,
-       sentimentmagnitude,
-
---        c.Cat_level1 as CategoryL1,
---        c.Cat_level2 as CategoryL2,
---        c.Cat_level3 as CategoryL3
-    from
+       c.Cat_level1 as CategoryL1,
+       c.Cat_level2 as CategoryL2,
+       c.Cat_level3 as CategoryL3
+    FROM
         products P
--- join productcategories_cln C
--- on p.sku=c.sku;
-select * from products_cln
+JOIN productcategories_cln C
+ON  p.sku=c.productsku;
+SELECT * FROM products_categories;
 --------
 
-select sku,
-       name_cln,
-       orderedquantity,
-       stocklevel,
-       restockingleadtime,
-       sentimentscore,
-       sentimentmagnitude,
-       ProductCategory --Todo: product categories needs to be broken down.
-from products_cln
 
--- VIEW PRODUCT CATEGORIES - split into ARRAY and then create new columns
-drop view if exists productcategories_cln;
-create view productcategories_cln as
+-- PRODUCT CATEGORIES - split into ARRAY and then create new columns
+DROP VIEW IF EXISTS productcategories_cln;
+CREATE VIEW productcategories_cln as
 SELECT  productsku,
         v2productcategory,
         CASE
@@ -110,72 +48,67 @@ SELECT  productsku,
        categoriesarray[2] as Cat_level2,
        categoriesarray[3] as Cat_level3,
        categoriesarray[4] as Cat_level4
-from (
-    select  productsku,
+FROM (
+    SELECT  productsku,
             v2productcategory,
             string_to_array(v2productcategory,'/') as categoriesarray
-    from all_sessions
+    FROM all_sessions
      ) as CategoryArray;
-select  distinct productsku,
+
+-----TEST THE CATEGORY VIEW
+SELECT  distinct productsku,
        v2productcategory,
        CatDepth,
        Cat_level1,
        Cat_level2,
        Cat_level3
-from productcategories_cln;
+FROM productcategories_cln;
 
--- VIEW for ANALYTICS_CLN
--- Select Distinct VisitID to remove duplicates
-drop table if exists unique_visits;
-create temp table unique_visits as
-select distinct visitid
-from analytics
-select * from unique_visits;
 
--- CREATE SUMMARY VIEW FROM ANALYTICS
+-- SUMMARY VIEW FROM ANALYTICS
 drop view if exists analytics_summary2;
-create view  analytics_summary2 as
+CREATE VIEW  analytics_summary2 as
 SELECT a.visitid,
        to_char(avg(unit_price),'FM999,999,999') as AVG_VisitPrice,
        to_char(max(unit_price),'FM999,999,999') as MAX_visitprice,
        to_char(min(unit_price),'FM999,999,999') as MIN_visitprice
 FROM analytics as A
-group by a.visitid;
-select * from analytics_summary2;
+GROUP BY a.visitid;
+SELECT * FROM analytics_summary2;
 
---VIEW FOR ANALYTICS_CLN
-    --change data type fo units sold
-    -- REMOVE any record where the units sold is Null AND the Revenue is NULL.
 
-drop view if exists analytics_cln;
-create view  analytics_cln as
+--ANALYTICS_CLN
+--change data type fo units sold (even though view not used for analysis)
+DROP VIEW IF EXISTS analytics_cln;
+CREATE VIEW  analytics_cln as
 SELECT *,
    to_number(units_sold,'9999') as units_sold_num
 FROM analytics as A
-where units_sold is not null and revenue is not null
-select * from analytics_cln;
+WHERE units_sold is not null and revenue is not null;
+SELECT * FROM analytics_cln;
 
--- VIEW for SALES_REPORT_CLN
-create or replace view sales_report_cln as
-select productsku,
+--SALES_REPORT_CLN
+CREATE OR REPLACE VIEW sales_report_cln as
+SELECT productsku,
        total_ordered,
-       trim (both from name),
+       trim (both FROM name),
        stocklevel,
        restockingleadtime,
        sentimentscore,
        sentimentmagnitude,
        ratio
-from sales_report;
+FROM sales_report;
 
 -- VIEW for SALES_BY_SKU_CLN
-create or replace view sales_by_sku_cln as
-select *
-from sales_by_sku;
+CREATE OR REPLACE VIEW sales_by_sku_cln as
+SELECT *
+FROM sales_by_sku;
 
 -- VIEW for ALL_SESSIONS_CLN
-drop view if exists all_session_cln
-create or replace view all_session_cln as
-select distinct (concat(visitid,'-',date,'-',time)) as primarykey,
+-- Create a primary key and select only distinct records.
+DROP VIEW IF EXISTS all_session_cln;
+CREATE OR REPLACE VIEW all_session_cln as
+SELECT DISTINCT (concat(visitid,'-',date,'-',time)) as primarykey,
         visitid,
        time,
        channelgrouping,
@@ -202,6 +135,7 @@ select distinct (concat(visitid,'-',date,'-',time)) as primarykey,
        currencycode,
        itemquantity,
        itemrevenue,
+       --- Convert Transaction revenue from string to number
        to_number(totaltransactionrevenue,'FM999,999,999') as tot_Txn_Revenue,
        transactionid,
        pagetitle,
@@ -210,11 +144,12 @@ select distinct (concat(visitid,'-',date,'-',time)) as primarykey,
        ecommerceaction_type,
        ecommerceaction_step,
        "eCommerceAction_option"
-from all_sessions;
-select * from all_session_cln;
+FROM all_sessions;
+SELECT * FROM all_session_cln;
 
 ------ JOIN ALL_SESSIONS AND ANALYTICS
-select A.visitid_cln as A_visitID,
+-- Not much purpose in doing this given Analytics table has limited value.
+SELECT A.visitid_cln as A_visitID,
        S.primarykey as S_PrimaryKey,
        a.visitnumber,
        visitstarttime,
@@ -229,7 +164,6 @@ select A.visitid_cln as A_visitID,
        bounces,
        revenue,
        unit_price,
-
        s.visitid,
        time,
        S.channelgrouping,
@@ -259,89 +193,55 @@ select A.visitid_cln as A_visitID,
        ecommerceaction_type,
        ecommerceaction_step,
        "eCommerceAction_option"
-from analytics_cln A
+FROM analytics_cln A
 join all_session_cln S
 on A.visitid_cln=S.visitid
 
 
- -- ORPHANED ANALYTICS
--- [analytics] that do not appear on [all sessions_cln] using visitID,where there IS a sale.
-drop view if exists orphaned_analytics
-create view orphaned_analytics as
-select s.visitid all_session_id,
-       a.visitid_cln,
-       a.units_sold,
-       a.unit_price,
-           a.channelgrouping,
-           a.socialengagementtype,
-           a.date,
-           a.timeonsite,
-           a.pageviews
-from all_session_cln AS s
-full join analytics_cln a
-on s.visitid = a.visitid_cln
-where s.visitid is null and units_sold is not null;
-
-select * from orphaned_analytics
----------
-
-
--- JOIN PRODUCTS AND ALL_SESSIONS [ORPHANED PRODUCTS]
--- 2,033 txn on [all_sessions] that do not have a corresponding [product]
-create view orphaned_products as
-    select a.date,
-       a.visitid,
-       a.productsku,
-       a.v2productname,
-       p.sku,
-       p.name_cln
-from all_sessions A
-full join products_cln P
-On a.productsku = P.sku
-where name_cln is null;
-
-select productsku,
+------------
+SELECT productsku,
        v2productname,
        count(productsku) count_transactions
-from orphaned_products
-group by  productsku, v2productname
+FROM orphaned_products
+GROUP BY  productsku, v2productname
 order by count(productsku) desc
 
 -- 13,101 record on inner join
 
--- ---- JOIN PRODUCTS:ALL_SESSIONS to compare product names
--- -- Query no longer works because the V2name was dropped from All_sessions.
--- drop view if exists  product_name_compare
--- create view product_name_compare as
--- select product_sku as MasterSKU,
---        productsku as AllsessionSKU,
---        v2productname as v2name_from_allsession,
---        p.name_cln as name_from_products
--- from master_sku M
--- join all_session_cln A
--- on m.product_sku=a.productsku
--- join products_cln P
--- on m.product_sku=p.sku;
--- select * from product_name_compare
+-- ---- compare product names to verify correctness
+-- JOIN PRODUCTS::ALL_SESSIONS
+DROP VIEW IF EXISTS  product_name_compare;
+CREATE VIEW product_name_compare as
+SELECT m.product_sku as MasterSKU,
+       a.productsku as AllsessionSKU,
+       p.sku as ProductSKU,
+       p.name_cln as Product_Name,
+       a.v2productname as Session_Name
+FROM master_sku M
+join all_session_clean A
+on m.product_sku=a.productsku
+join products_cln P
+on m.product_sku=p.sku;
+SELECT * FROM product_name_compare
 
 
 -- -- JOIN PRODUCTS AND SALES_REPORT
-Select p.sku,
+SELECT p.sku,
        p.name_cln
-from products_cln P
+FROM products_cln P
 join sales_report_cln S
 on p.sku = s.productsku
 
 -- -- JOIN ALL_SESSIONS AND SALES_REPORT
-Select p.sku,
+SELECT p.sku,
        p.name_cln
-from products_cln P
+FROM products_cln P
 join all_session_cln S
 on p.sku = s.productsku
 
 --
 ------ JOIN for SALES REPORTS
-select productsku,
+SELECT productsku,
        R.total_ordered as Sales_report_TOTAL,
        S.total_ordered as Sales_by_Sku_total,
 
@@ -352,48 +252,26 @@ select productsku,
        ratio,
        product_sku
 
-from sales_report_cln R
+FROM sales_report_cln R
 join sales_by_sku_cln S
 on R.productsku = S.product_sku
-where r.total_ordered!=s.total_ordered
+WHERE r.total_ordered!=s.total_ordered
 
 ---- MASTER LIST OF ALL SKU: UNION of SaleReport and SalesbySKU
 DROP VIEW IF EXISTS master_sku;
-create or replace view master_sku as
-select product_sku
-from sales_by_sku
+CREATE OR REPLACE VIEW master_sku as
+SELECT product_sku
+FROM sales_by_sku
     union
-select productsku
-from sales_report_cln
+SELECT productsku
+FROM sales_report_cln
 --     union
--- select sku
--- from products;
-
---IDENTIFY THE SKU that are not included on the SALES by SKU REPORT
--- but ARE listed in the SALES_REPORT
-drop view if exists sku_missing_frm_salesbyskurpt
-create view sku_missing_frm_salesbyskurpt as
-select M.product_sku as MASTER_LIST,
-       S.product_sku as Sales_by_SKU,
-       R.productsku as Sales_Report
-from master_sku M
-left join sales_by_sku S
-on M.product_sku=s.product_sku
-left join sales_report_cln R
-on M.product_sku = R.productsku
-where r.productsku is null;
-select * from sku_missing_frm_salesbyskurpt
+-- SELECT sku
+-- FROM products;
 
 
---- CREATE CATEGORY TABLE:
--- create table product_category
--- (id int,
--- parent int,
--- description varchar(15))
 
--- How many duplicate visitid are on All_session
-select visitid,count(visitid)
-from all_session_cln
-group by visitid
-having count(visitid) >1
+
+
+
 
