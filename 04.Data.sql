@@ -47,14 +47,16 @@ SELECT C.cat_level2 as Category,
        max(R.stocklevel) as Max_stock_lvl,
        avg(R.stocklevel) as AVG_stock_lvl,
         min(R.stocklevel) as min_stock_lvl,
+        stddev(r.stocklevel) as stdev_stock_levl,
         count(C.productsku) as product_in_cat
 FROM sales_report_cln R
-JOIN productcategories_cln C
+JOIN productcategories_cln2 C
 ON R.productsku = C.productsku
 GROUP BY Category
+ORDER BY Category
 
-SELECT *
+SELECT distinct R.productsku
 FROM sales_report_cln R
-JOIN    productcategories_cln C
+JOIN    productcategories_cln2 C
 ON R.productsku=C.productsku
 WHERE cat_level2 = 'Apparel'

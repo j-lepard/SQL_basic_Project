@@ -34,8 +34,8 @@ SELECT * FROM products_categories;
 
 
 -- PRODUCT CATEGORIES - split into ARRAY and then create new columns
-DROP VIEW IF EXISTS productcategories_cln;
-CREATE VIEW productcategories_cln as
+DROP VIEW IF EXISTS productcategories_cln2;
+CREATE VIEW productcategories_cln2 as
 SELECT  productsku,
         v2productcategory,
         CASE
@@ -49,20 +49,20 @@ SELECT  productsku,
        categoriesarray[3] as Cat_level3,
        categoriesarray[4] as Cat_level4
 FROM (
-    SELECT  productsku,
+    SELECT  DISTINCT productsku,
             v2productcategory,
             string_to_array(v2productcategory,'/') as categoriesarray
     FROM all_sessions
      ) as CategoryArray;
 
 -----TEST THE CATEGORY VIEW
-SELECT  distinct productsku,
+SELECT   productsku,
        v2productcategory,
        CatDepth,
        Cat_level1,
        Cat_level2,
        Cat_level3
-FROM productcategories_cln;
+FROM productcategories_cln2;
 
 
 -- SUMMARY VIEW FROM ANALYTICS
