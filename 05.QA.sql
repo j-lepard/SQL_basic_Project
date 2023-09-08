@@ -59,7 +59,7 @@ CREATE VIEW orphaned_products as
        p.sku,
        p.name_cln
 FROM all_sessions A
-full join products_cln P
+FULL JOIN products_cln P
 On a.productsku = P.sku
 WHERE name_cln is null;
 SELECT *

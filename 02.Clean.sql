@@ -147,6 +147,53 @@ SELECT DISTINCT (concat(visitid,'-',date,'-',time)) as primarykey,
 FROM all_sessions;
 SELECT * FROM all_session_cln;
 
+---- VIEW of SESSIONS where Item Qty >=1
+-- dropped V2category as it will be joined to [product_categories]
+-- dropped [product refund amount]
+-- dropped [product variant]
+-- dropped [search keyword]
+DROP VIEW IF EXISTS all_session_transactions;
+CREATE OR REPLACE VIEW all_session_transactions as
+SELECT DISTINCT (concat(visitid,'-',date,'-',time)) as primarykey,
+        visitid,
+       time,
+       channelgrouping,
+       country,
+       -- City name - remove junk
+       CASE
+            when city = '(not set)' then 'N/A'
+            When city = 'not available in demo dataset' then 'N/A'
+            else city
+        end as city_fix,
+       transactions,
+       timeonsite,
+       pageviews,
+       date,
+       type,
+       --- Convert Product Quantity from string to number
+       CAST(productquantity as numeric) as productquantity,
+       productprice,
+       productrevenue,
+       productsku,
+       --- Convert item Quantity from string to number
+        to_number(itemquantity,'FM999,999,999') as item_quantity,
+       --- Convert item REvenue from string to number
+        to_number(itemrevenue,'FM999,999,999') as item_revenue,
+       --- Convert Transaction revenue from string to number
+       to_number(totaltransactionrevenue,'FM999,999,999') as tot_Txn_Revenue,
+       transactionid,
+       pagetitle,
+       pagepathlevel1,
+       ecommerceaction_type,
+       ecommerceaction_step,
+       "eCommerceAction_option"
+FROM all_session_clean
+WHERE productquantity is not null;
+SELECT * FROM all_session_transactions;
+
+
+
+
 ------ JOIN ALL_SESSIONS AND ANALYTICS
 -- Not much purpose in doing this given Analytics table has limited value.
 SELECT A.visitid_cln as A_visitID,
