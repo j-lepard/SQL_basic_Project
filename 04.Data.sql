@@ -60,3 +60,20 @@ FROM sales_report_cln R
 JOIN    productcategories_cln2 C
 ON R.productsku=C.productsku
 WHERE cat_level2 = 'Apparel'
+
+
+--- Question 5 - Dates visited------
+WITH session_dates as (
+SELECT TO_DATE(date::text, 'YYYYMMDD') as Date_corrected
+FROM all_session_clean )
+--- BY MONTH ---
+SELECT DISTINCT (EXTRACT(MONTH from Date_corrected)) as MonthVisit,
+         count(Date_corrected) OVER (PARTITION BY EXTRACT(MONTH from Date_corrected)) as visit_count
+FROM session_dates
+ORDER BY MonthVisit
+
+--- BY DAY OF MONTH
+SELECT DISTINCT (EXTRACT(DAY from Date_corrected)) as Day_of_Month_visit,
+         count(Date_corrected) OVER (PARTITION BY EXTRACT(DAY from Date_corrected)) as visit_count
+FROM session_dates
+ORDER BY Day_of_Month_visit
