@@ -8,11 +8,11 @@
 4. generate an entity relationship diagram
 
 ## Process:
-1. [Schema and Master Data Review](https://github.com/j-lepard/LHL-SQL_Project/blob/8787467a2a8bf9ac972472815ad9b794971721ae/02.cleaning_data.md)
-2. [Initial inquiries from the Business](https://github.com/j-lepard/LHL-SQL_Project/blob/8787467a2a8bf9ac972472815ad9b794971721ae/03.starting_with_questions.md)
-3. [Supplementary questions](https://github.com/j-lepard/LHL-SQL_Project/blob/8787467a2a8bf9ac972472815ad9b794971721ae/04.starting_with_data.md)
-4. [Quality Assurance](https://github.com/j-lepard/LHL-SQL_Project/blob/8787467a2a8bf9ac972472815ad9b794971721ae/05.QA.md)
-5. Iterate, Iterate ...
+1. [Cleaning_data](02.cleaning_data.md)
+2. [Starting_with_questions](03.starting_with_questions.md)
+3. [Starting_with_data](04.starting_with_data.md)
+4. [Quality Assurance](05.QA.md)
+
 
 ## Results
 - The business results have been captured in #2 of the Process section. 
